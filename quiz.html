@@ -1,0 +1,501 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quiz Application</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f0f2f5;
+            color: #333;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        h1 {
+            text-align: center;
+            color: #2c3e50;
+        }
+        .question-container {
+            background-color: #fff;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        .question-text {
+            font-size: 1.1em;
+            font-weight: 600;
+            margin-bottom: 15px;
+        }
+        .options {
+            list-style-type: none;
+            padding: 0;
+        }
+        .options li {
+            margin-bottom: 10px;
+        }
+        .options label {
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+            padding: 10px;
+            border-radius: 4px;
+            background-color: #f8f9fa;
+            transition: background-color 0.2s;
+        }
+        .options label:hover {
+            background-color: #e9ecef;
+        }
+        .options input[type="radio"] {
+            margin-right: 15px;
+        }
+        .submit-btn {
+            display: block;
+            width: 100%;
+            padding: 15px;
+            background-color: #3498db;
+            color: white;
+            font-size: 1.1em;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        .submit-btn:hover {
+            background-color: #2980b9;
+        }
+        .feedback {
+            margin-top: 10px;
+            font-weight: bold;
+            display: none;
+        }
+        .correct-feedback {
+            color: #2ecc71;
+        }
+        .incorrect-feedback {
+            color: #e74c3c;
+        }
+        .correct-answer-show {
+            color: #34495e;
+            font-style: italic;
+            margin-top: 5px;
+            display: none;
+        }
+        .score-display {
+            text-align: center;
+            font-size: 1.5em;
+            font-weight: bold;
+            margin-top: 30px;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Interactive Quiz</h1>
+    
+    <div id="quiz-container"></div>
+    <button id="submit-btn" class="submit-btn" onclick="checkAnswers()">Submit All Answers</button>
+    <div id="score-display" class="score-display"></div>
+
+    <script>
+        const questions = [
+            // Block 1
+            {
+                q: "__________ were well-versed in the manufacturing of gunpowder and its application in firearms in medieval period.",
+                options: ["Cholas", "Rajputs", "Marathas", "Mughals"],
+                answer: 3
+            },
+            {
+                q: "Raja Ravi Varma achieved recognition for his paintings from the epics of the __________ and __________.",
+                options: ["Vedas and Puranas", "Ramayana and Bhagavad Gita", "Puranas and Upanishads", "Mahabharata and Ramayana"],
+                answer: 3
+            },
+            {
+                q: "The Classical paintings from Ajanta Caves, painted between ______ B.C. and ______ A.D.",
+                options: ["150 B.C. and 400 A.D.", "200 B.C. and 300 A.D.", "100 B.C. and 500 A.D.", "300 B.C. and 200 A.D."],
+                answer: 0
+            },
+            {
+                q: "Modern Indian music are called as ____________.",
+                options: ["Pop music", "Classical music", "Devotional music", "Folk music"],
+                answer: 0
+            },
+            {
+                q: "The Sanskrit words of patta meaning ________ and chitra meaning ___________.",
+                options: ["Cloth and art", "Paper and painting", "Canvas and picture", "Cloth and image"],
+                answer: 2
+            },
+            {
+                q: "Folk dance is derived from ___________.",
+                options: ["Social dance", "Ethnic dance", "Community dance", "Exogenous dance"],
+                answer: 2
+            },
+            {
+                q: "Crafts like weaving and spinning flourished in India when the ____________ acquired power.",
+                options: ["Sultan", "Maratha", "Rajput", "Mughal"],
+                answer: 3
+            },
+            {
+                q: "____________ is a holistic system of treatment, which is amalgamation of use of food, medicine and other measures like exercise and behavior.",
+                options: ["Siddha", "Ayurveda", "Tibetan", "Unani"],
+                answer: 1
+            },
+            {
+                q: "Syadhyaya refers to __________.",
+                options: ["Contentment", "Devotion to the Divine", "Cleanliness", "Self study"],
+                answer: 3
+            },
+            {
+                q: "The use of zero by Indians in Mathematics since _________ years ago.",
+                options: ["3000", "6000", "4000", "2000"],
+                answer: 3
+            },
+            
+            // Block 2
+            {
+                q: "The Samkhya philosophy holds that reality is constituted of two principles one female and the other male respectively.",
+                options: ["Prakriti, Purusha", "Prakriti, Samkhya", "Aham, Manas", "Purusha, Buddhi"],
+                answer: 0
+            },
+            {
+                q: "________ philosophy consists of three basic elements: a leading charismatic personality (the Guru), ideology (Shabad) and Organization (Sangat).",
+                options: ["Kabir", "Tughlaq", "Guru Nanak", "Khalji"],
+                answer: 2
+            },
+            {
+                q: "How many Schools of Indian Philosophy are classified into Vedic Philosophical Concept?",
+                options: ["4", "6", "2", "8"],
+                answer: 1
+            },
+            {
+                q: "The two most important heterodox schools were Buddhism and Jainism, both arising around the ______ century.",
+                options: ["6th", "3rd", "8th", "2nd"],
+                answer: 0
+            },
+            {
+                q: "Yoga Techniques help the human body to Control the ______, ______ and ______.",
+                options: ["sense organs, body and mind", "body, mind and sense organs", "Physical, Mental Health and increase in spirituality", "mind, body and sense organs"],
+                answer: 1
+            },
+            {
+                q: "Vedic philosophical concepts gave rise to six different schools of philosophies called ______.",
+                options: ["Dharshan Shastra", "Vedanta", "Shada darshana", "Vaisheshika"],
+                answer: 2
+            },
+            {
+                q: "Thoughts of Swami Dayananda were written in his well-known work ______.",
+                options: ["Bhasa", "Sanyasa", "Satyarth", "Aksara"],
+                answer: 2
+            },
+            {
+                q: "________ is considered as a technique of ______.",
+                options: ["Samkhya, Decision making", "Nyaya, Logical thinking", "Vaisheshika, Logical thinking", "Mimamsa, Creative thinking"],
+                answer: 1
+            },
+            {
+                q: "________ is a term used to refer to mystical religious ideas in Islam. It had evolved into a well developed movement by the ______.",
+                options: ["Sufism, 11th", "Chishti sililah, 12th", "Nagshbandi, 5th", "Suhrawardi, 9th"],
+                answer: 0
+            },
+            {
+                q: "Who led a successful campaign against upper-caste dominance and brahminical supremacy?",
+                options: ["Sarvajanik Satyadharma", "Debendranath", "Jyotiba Phule", "R.C. Bhandarkar"],
+                answer: 2
+            },
+            
+            // Block 3
+            {
+                q: "What is Anthropocentric?",
+                options: ["Traditional centric", "Ethnocentric", "Spirituality", "Humancentric"],
+                answer: 3
+            },
+            {
+                q: "The beliefs and practices of Indian culture rely on",
+                options: ["Religion", "Language", "Dance", "Unity of Diversity"],
+                answer: 0
+            },
+            {
+                q: "The imbalance in the rate and speed of change between material and non-material culture is known as",
+                options: ["Cultural traits", "Cultural lag", "Culture expansion", "Cultural expression"],
+                answer: 1
+            },
+            {
+                q: "The hymns of the __________ is rendered through the set of music",
+                options: ["Rigveda and Samaveda", "Natta", "Natyashastra", "Nritta"],
+                answer: 0
+            },
+            {
+                q: "___________ is a type of integration where the earlier identification of the elements is dissolved",
+                options: ["Interaction", "Assimilation", "Communication", "Accommodation"],
+                answer: 1
+            },
+            {
+                q: "Culture is a collection of",
+                options: ["Customs", "Traditions", "Values of human life", "Behaviours"],
+                answer: 3
+            },
+            {
+                q: "The regular practice during festival occasion in India is",
+                options: ["Fasting", "Belief", "Food", "Customs"],
+                answer: 3
+            },
+            {
+                q: "The 3 eternal and universal values of __________, __________, and __________ are deeply connected with culture",
+                options: ["Values, principles, and norms", "Spiritual, philosophy and religion", "Traditions, beliefs, and spirituality", "Truth, beauty and goodness"],
+                answer: 3
+            },
+            {
+                q: "The process which undergoes changes from one society to another society and generation is known as",
+                options: ["Culture is transmitted", "Culture varies", "Culture is dynamic", "Culture is cumulative"],
+                answer: 1
+            },
+            {
+                q: "The gestures used to express, explain, or denote particular emotions with expressions are called",
+                options: ["Symbols", "Values", "Attitudes", "Norms"],
+                answer: 0
+            },
+            
+            // Block 4
+            {
+                q: "An indigenous knowledge brings out the power of",
+                options: ["Association and dissociation", "Observation and imagination", "Tradition and culture", "Belief and faith"],
+                answer: 0
+            },
+            {
+                q: "Traditional knowledge gain gave special importance in the outburst of",
+                options: ["Modern medicines", "Herbal medicines", "Chemical medicines", "Synthetic medicines"],
+                answer: 1
+            },
+            {
+                q: "In traditional knowledge towards skin diseases or fungal infection the remedies are applications of",
+                options: ["Tulsi", "Neem", "Aloe vera", "Turmeric"],
+                answer: 1
+            },
+            {
+                q: "In Hyderabad some communities do __________ for asthma",
+                options: ["Herbal treatment", "Oil therapy", "Fish therapy", "Yoga therapy"],
+                answer: 2
+            },
+            {
+                q: "Traditional knowledge helps in finding out the solutions for",
+                options: ["Past problems", "Contemporary problems", "Cultural problems", "Religious problems"],
+                answer: 1
+            },
+            {
+                q: "The traditional knowledge also identifies the expansive mapping of knowledge known as",
+                options: ["Human interaction", "Native science", "Indigenous knowledge", "Traditional knowledge"],
+                answer: 2
+            },
+            {
+                q: "Traditional knowledge is oriented towards",
+                options: ["Culture", "Religion", "Class", "Caste"],
+                answer: 0
+            },
+            {
+                q: "The seasonality-based practices related to restriction of fishing during breeding season",
+                options: ["Traditional ecological knowledge", "Traditional knowledge", "Traditional value and ethics", "Indigenous knowledge"],
+                answer: 0
+            },
+            {
+                q: "Through biological resources new research has been done name as",
+                options: ["Biological enhancement", "Biological variety", "Bio prospecting", "Bio-friendly"],
+                answer: 2
+            },
+            {
+                q: "Indian people named the plants and herbs as __________ as they know the importance of it",
+                options: ["Folk remedies", "Medicine", "Herbals", "Mother nature"],
+                answer: 0
+            },
+            
+            // Block 5 (6-10)
+            {
+                q: "What was established in 2003 by the Central Government to implement India’s Biological Diversity Act (2002) which has a statutory body that performs facilitative, regulatory and advisory functions for the Government of India on the issue of conservation and sustainable use of biological resources?",
+                options: ["The State Biodiversity Boards", "The National Biodiversity Authority", "The Biodiversity Management Committees", "The Biodiversity Reserve Management"],
+                answer: 1
+            },
+            {
+                q: "Which food made from the stem of banana plants, Banana stem juice used for treating hypoglycemia?",
+                options: ["Momordica charantia", "Bale dandu palya", "Spinacia oleracea", "Bharwan karela"],
+                answer: 1
+            },
+            {
+                q: "A variety which is notified under Seed Act, 1966?",
+                options: ["Extant Variety", "New Variety", "Farmer’s Variety", "Essentially Derived Variety (EDV)"],
+                answer: 1
+            },
+            {
+                q: "The Plant Variety Act of India has benefit sharing mechanisms which requires sharing the benefits of traditional knowledge to arise?",
+                options: ["Social Development", "Healthy lifestyle", "Commercialization", "Organic farming"],
+                answer: 2
+            },
+            {
+                q: "India is covered by how much percentage of forest landscape?",
+                options: ["23%", "41%", "18%", "32%"],
+                answer: 0
+            },
+            
+            // Block 6
+            {
+                q: "Who are the sources for Atharva Veda?",
+                options: ["Agastya and Bhrigu", "Prithvi and Vak", "Atharvan and Angiras", "Aditi and Atri"],
+                answer: 2
+            },
+            {
+                q: "Choose the correct one:",
+                options: ["Valmiki – Mahabharata", "Vyasa – Ramayana", "Kambar – Chilapatikaram", "Valmiki – Ramayana"],
+                answer: 3
+            },
+            {
+                q: "What is (Sol) in Tholkapiyam known as?",
+                options: ["Etymology", "Orthography", "Ontology", "Literary conventions and usages"],
+                answer: 0
+            },
+            {
+                q: "Tolkappiyam clearly and systematically elucidates _________",
+                options: ["Isai", "Katturai", "Naadagam", "Iyal"],
+                answer: 3
+            },
+            {
+                q: "________ notes in his 2009 book “For centuries we have been accustomed to literature primarily as an oral manifestation of language.”",
+                options: ["Bhalchandra Nemade, Nationalism", "Dayananda, Nationalism", "Debendranath, Nativism", "Bhalchandra Nemade, Nativism"],
+                answer: 3
+            },
+            {
+                q: "What is the treasure vault to wisdom and knowledge?",
+                options: ["Veda", "Mahayana", "Prayathana", "Upanishads"],
+                answer: 3
+            },
+            {
+                q: "Vedas consist of ________, ________, and ________",
+                options: ["Rudra, Aditya, Vayu", "Brahmanas, Upanishads, Aranyakas", "Vamadeva, Vishvamitra and Atri", "Vasistha, Gautama, Gritasamda"],
+                answer: 1
+            },
+            {
+                q: "Who taught the Aranyakas during Ancient Period?",
+                options: ["Atri", "Vanaprastha", "Angira", "Bhrigu"],
+                answer: 1
+            },
+            {
+                q: "Which part in Thirukural focus on polity and administration, including citizenship and social relations?",
+                options: ["Inbattuppal", "Kamattuppal", "Arattuppal", "Porutpal"],
+                answer: 3
+            },
+            {
+                q: "Shukla is part of which Veda?",
+                options: ["Rig", "Yajur", "Sama", "Purana"],
+                answer: 1
+            }
+        ];
+
+        const quizContainer = document.getElementById('quiz-container');
+
+        // Render questions
+        questions.forEach((q, index) => {
+            const questionDiv = document.createElement('div');
+            questionDiv.className = 'question-container';
+            questionDiv.id = `q-container-${index}`;
+
+            const qText = document.createElement('div');
+            qText.className = 'question-text';
+            qText.textContent = `${index + 1}. ${q.q}`;
+            questionDiv.appendChild(qText);
+
+            const optionsList = document.createElement('ul');
+            optionsList.className = 'options';
+
+            q.options.forEach((opt, optIndex) => {
+                const li = document.createElement('li');
+                const label = document.createElement('label');
+                
+                const radio = document.createElement('input');
+                radio.type = 'radio';
+                radio.name = `question${index}`;
+                radio.value = optIndex;
+                radio.onchange = () => checkSingleAnswer(index, optIndex);
+
+                label.appendChild(radio);
+                label.appendChild(document.createTextNode(opt));
+                li.appendChild(label);
+                optionsList.appendChild(li);
+            });
+
+            questionDiv.appendChild(optionsList);
+
+            const feedback = document.createElement('div');
+            feedback.id = `feedback-${index}`;
+            feedback.className = 'feedback';
+            questionDiv.appendChild(feedback);
+
+            const correctShow = document.createElement('div');
+            correctShow.id = `correct-${index}`;
+            correctShow.className = 'correct-answer-show';
+            correctShow.textContent = `Correct Answer: ${q.options[q.answer]}`;
+            questionDiv.appendChild(correctShow);
+
+            quizContainer.appendChild(questionDiv);
+        });
+
+        function checkSingleAnswer(index, selectedValue) {
+            const q = questions[index];
+            const feedbackEl = document.getElementById(`feedback-${index}`);
+            const correctEl = document.getElementById(`correct-${index}`);
+
+            feedbackEl.style.display = 'block';
+
+            // Disable options after selection
+            const radios = document.querySelectorAll(`input[name="question${index}"]`);
+            radios.forEach(r => r.disabled = true);
+
+            if (selectedValue === q.answer) {
+                feedbackEl.textContent = '✅ Correct!';
+                feedbackEl.className = 'feedback correct-feedback';
+                correctEl.style.display = 'none';
+            } else {
+                feedbackEl.textContent = '❌ Incorrect';
+                feedbackEl.className = 'feedback incorrect-feedback';
+                correctEl.style.display = 'block';
+            }
+        }
+
+        function checkAnswers() {
+            let score = 0;
+            const total = questions.length;
+
+            questions.forEach((q, index) => {
+                const selected = document.querySelector(`input[name="question${index}"]:checked`);
+                const feedbackEl = document.getElementById(`feedback-${index}`);
+                const correctEl = document.getElementById(`correct-${index}`);
+
+                feedbackEl.style.display = 'block';
+
+                if (selected) {
+                    const selectedValue = parseInt(selected.value);
+                    if (selectedValue === q.answer) {
+                        feedbackEl.textContent = '✅ Correct!';
+                        feedbackEl.className = 'feedback correct-feedback';
+                        score++;
+                        correctEl.style.display = 'none';
+                    } else {
+                        feedbackEl.textContent = '❌ Incorrect';
+                        feedbackEl.className = 'feedback incorrect-feedback';
+                        correctEl.style.display = 'block';
+                    }
+                } else {
+                    feedbackEl.textContent = '⚠️ Not answered';
+                    feedbackEl.className = 'feedback incorrect-feedback';
+                    correctEl.style.display = 'block';
+                }
+            });
+
+            const scoreDisplay = document.getElementById('score-display');
+            scoreDisplay.textContent = `You scored ${score} out of ${total}!`;
+            scoreDisplay.style.display = 'block';
+            
+            window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
+        }
+    </script>
+</body>
+</html>
