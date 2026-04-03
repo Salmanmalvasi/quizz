@@ -83,6 +83,15 @@
             margin-top: 5px;
             display: none;
         }
+        .explanation-text {
+            color: #555;
+            background-color: #f1f8ff;
+            border-left: 4px solid #3498db;
+            padding: 10px;
+            margin-top: 10px;
+            font-size: 0.95em;
+            display: none;
+        }
         .score-display {
             text-align: center;
             font-size: 1.5em;
@@ -115,13 +124,15 @@
             },
             {
                 q: "The Classical paintings from Ajanta Caves, painted between ______ B.C. and ______ A.D.",
-                options: ["150 B.C. and 400 A.D.", "200 B.C. and 300 A.D.", "100 B.C. and 500 A.D.", "300 B.C. and 200 A.D."],
-                answer: 0
+                options: ["150 B.C. and 400 A.D.", "Circa 200 B.C. to A.D. 600", "100 B.C. and 500 A.D.", "300 B.C. and 200 A.D."],
+                answer: 1,
+                explanation: "The sources explicitly state that the classical paintings from the Ajanta Caves were painted between circa 200 B.C. and A.D. 600, not 150 B.C. to 400 A.D."
             },
             {
                 q: "Modern Indian music are called as ____________.",
-                options: ["Pop music", "Classical music", "Devotional music", "Folk music"],
-                answer: 0
+                options: ["Pop music", "Characterized by Western influence, orchestration, and the 72 Melakartas (parent scales)", "Devotional music", "Folk music"],
+                answer: 1,
+                explanation: "The provided text does not classify modern Indian music as \"Pop music\". Instead, the modern period of Indian music is defined by the adoption of Western instruments, stage orchestration, the use of cassettes replacing oral transmission, and the development of the seventy-two Melakartas."
             },
             {
                 q: "The Sanskrit words of patta meaning ________ and chitra meaning ___________.",
@@ -172,8 +183,9 @@
             },
             {
                 q: "The two most important heterodox schools were Buddhism and Jainism, both arising around the ______ century.",
-                options: ["6th", "3rd", "8th", "2nd"],
-                answer: 0
+                options: ["6th century B.C.", "3rd century B.C.", "8th century B.C.", "2nd century B.C."],
+                answer: 0,
+                explanation: "Omitting \"B.C.\" implies the A.D. era, making the original answer factually incorrect. The founders of these philosophies arose in the 6th century B.C., with Vardhaman Mahavira born in 599 B.C. and Gautama Buddha born in 563 B.C."
             },
             {
                 q: "Yoga Techniques help the human body to Control the ______, ______ and ______.",
@@ -235,7 +247,8 @@
             {
                 q: "Culture is a collection of",
                 options: ["Customs", "Traditions", "Values of human life", "Behaviours"],
-                answer: 3
+                answer: 2,
+                explanation: "While culture certainly influences patterns of behavior, the sources specifically define culture as the \"collection of values of human life, which establishes it specifically and ideally separate from other groups\"."
             },
             {
                 q: "The regular practice during festival occasion in India is",
@@ -324,7 +337,8 @@
             {
                 q: "A variety which is notified under Seed Act, 1966?",
                 options: ["Extant Variety", "New Variety", "Farmer’s Variety", "Essentially Derived Variety (EDV)"],
-                answer: 1
+                answer: 0,
+                explanation: "A plant variety that is notified under the Seed Act of 1966 is legally defined as an \"Extant Variety\". In contrast, a \"New Variety\" is defined as a variety that has not been in the public domain in India for more than a year."
             },
             {
                 q: "The Plant Variety Act of India has benefit sharing mechanisms which requires sharing the benefits of traditional knowledge to arise?",
@@ -435,6 +449,14 @@
             correctShow.textContent = `Correct Answer: ${q.options[q.answer]}`;
             questionDiv.appendChild(correctShow);
 
+            if (q.explanation) {
+                const explanationShow = document.createElement('div');
+                explanationShow.id = `explanation-${index}`;
+                explanationShow.className = 'explanation-text';
+                explanationShow.textContent = `Explanation: ${q.explanation}`;
+                questionDiv.appendChild(explanationShow);
+            }
+
             quizContainer.appendChild(questionDiv);
         });
 
@@ -442,12 +464,20 @@
             const q = questions[index];
             const feedbackEl = document.getElementById(`feedback-${index}`);
             const correctEl = document.getElementById(`correct-${index}`);
+            const explanationEl = document.getElementById(`explanation-${index}`);
 
             feedbackEl.style.display = 'block';
 
             // Disable options after selection
             const radios = document.querySelectorAll(`input[name="question${index}"]`);
             radios.forEach(r => r.disabled = true);
+
+            // Highlight the correct option
+            const correctRadio = document.querySelector(`input[name="question${index}"][value="${q.answer}"]`);
+            if (correctRadio) {
+                correctRadio.parentElement.style.backgroundColor = '#d4edda';
+                correctRadio.parentElement.style.color = '#155724';
+            }
 
             if (selectedValue === q.answer) {
                 feedbackEl.textContent = '✅ Correct!';
@@ -457,6 +487,9 @@
                 feedbackEl.textContent = '❌ Incorrect';
                 feedbackEl.className = 'feedback incorrect-feedback';
                 correctEl.style.display = 'block';
+            }
+            if (explanationEl) {
+                explanationEl.style.display = 'block';
             }
         }
 
@@ -468,8 +501,20 @@
                 const selected = document.querySelector(`input[name="question${index}"]:checked`);
                 const feedbackEl = document.getElementById(`feedback-${index}`);
                 const correctEl = document.getElementById(`correct-${index}`);
+                const explanationEl = document.getElementById(`explanation-${index}`);
 
                 feedbackEl.style.display = 'block';
+
+                // Disable the radio buttons
+                const radios = document.querySelectorAll(`input[name="question${index}"]`);
+                radios.forEach(r => r.disabled = true);
+                
+                // Highlight the correct option
+                const correctRadio = document.querySelector(`input[name="question${index}"][value="${q.answer}"]`);
+                if (correctRadio) {
+                    correctRadio.parentElement.style.backgroundColor = '#d4edda';
+                    correctRadio.parentElement.style.color = '#155724';
+                }
 
                 if (selected) {
                     const selectedValue = parseInt(selected.value);
@@ -487,6 +532,9 @@
                     feedbackEl.textContent = '⚠️ Not answered';
                     feedbackEl.className = 'feedback incorrect-feedback';
                     correctEl.style.display = 'block';
+                }
+                if (explanationEl) {
+                    explanationEl.style.display = 'block';
                 }
             });
 
